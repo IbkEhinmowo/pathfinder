@@ -7,7 +7,7 @@ import time
 
 class Search:
     def __init__(self):
-        self.driver = webdriver.Safari()
+        self.driver = webdriver.Chrome()
 
     def target_site(self):
         self.driver.get(value.BASE_URL)
@@ -17,7 +17,10 @@ class Search:
         time.sleep(1)  # Add delay to ensure URL is updated
         print(f"URL after delay: {self.driver.current_url}")
 
-        # self.login(value.EMAIL, value.PASSWORD)
+        self.login(value.EMAIL, value.PASSWORD)
+        
+
+
 
         time.sleep(4000)
         self.driver.quit()
@@ -30,3 +33,10 @@ class Search:
         password_field.send_keys(password)
         button = wait.until(EC.element_to_be_clickable((By.NAME, "login")))
         button.click()
+
+    def click_marketplace(self):
+        """Click on the Marketplace button"""
+        wait = WebDriverWait(self.driver,5)
+        marketplace_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '[aria-label="Marketplace"]')))
+        marketplace_button.click()
+        print("Successfully clicked Marketplace button")
