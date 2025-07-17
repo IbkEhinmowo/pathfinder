@@ -1,8 +1,11 @@
-<<<<<<< HEAD
-
+# Virtual Environment
 .venv/
 
+# Data directory - scraped data
+data/
+
+# Session storage
 auth.json
-=======
-.venv/
->>>>>>> 91c752aba9430c8fc28a484a1435605684232c2c
+
+# Python cache
+__pycache__/

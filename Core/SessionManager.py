@@ -4,15 +4,24 @@ import time
 import json
 from playwright_stealth import stealth_sync
 import random
+import os
 
 class FacebookSessionManager:
     """
     Handles Facebook login and session persistence using Playwright.
     """
-    def __init__(self, email: str, password: str, cookie_file: str = "auth.json"):
+    def __init__(self, email: str, password: str, cookie_file: str = None):
+        
         self.email = email
         self.password = password
-        self.cookie_file = cookie_file
+        if cookie_file is None:
+            home = os.path.expanduser("~")
+            fb_auth_dir = os.path.join(home, "FBAuth")
+            if not os.path.exists(fb_auth_dir):
+                os.makedirs(fb_auth_dir, exist_ok=True)
+            self.cookie_file = os.path.join(fb_auth_dir, "auth.json")
+        else:
+            self.cookie_file = cookie_file
         self.browser: Optional[Browser] = None
         self.context: Optional[BrowserContext] = None
         self.page: Optional[Page] = None
@@ -24,11 +33,14 @@ class FacebookSessionManager:
             time.sleep(random.uniform(0.05, 0.2))
 
     def login(self, stay_open: bool = False) -> None:
+        """
+        Opens Facebook login page and lets the user sign in manually. After login, saves the session cookies.
+        """
         with sync_playwright() as p:
             user_agent = (
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/120.0.0.0 Safari/537.36"
+                "Chrome/124.0.0.0 Safari/537.36"
             )
             viewport = {"width": 1280, "height": 800}
             self.browser = p.chromium.launch(headless=False)
@@ -39,31 +51,16 @@ class FacebookSessionManager:
             self.page = self.context.new_page()
             stealth_sync(self.page)
             self.page.goto("https://www.facebook.com")
-            print("Navigated to Facebook login page.")
-            time.sleep(random.uniform(1.2, 2.5))
-            self.page.click("#email")
-            self._human_type("#email", self.email)
-            time.sleep(random.uniform(0.5, 1.2))
-            self.page.click("#pass")
-            self._human_type("#pass", self.password)
-            time.sleep(random.uniform(0.5, 1.2))
-            self.page.hover('button[name="login"]')
-            time.sleep(random.uniform(0.2, 0.6))
-            self.page.click('button[name="login"]')
-            print("Login submitted. Waiting for redirect...")
-            self.page.wait_for_load_state("networkidle", timeout=30000)
-            time.sleep(random.uniform(2.5, 4.5))
-            # Save session
-            self.context.storage_state(path=self.cookie_file)
-            print(f"Session saved to {self.cookie_file}")
-            if stay_open:
-                print("Browser will stay open. Close it manually when done.")
-                try:
-                    while True:
-                        time.sleep(1)
-                except KeyboardInterrupt:
-                    print("Browser closing...")
-            self.browser.close()
+            print("Please sign in to Facebook manually in the opened browser window.")
+            print("After you have completed login and the page has fully loaded, press Ctrl+C here to save the session and close the browser.")
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                print("Saving session and closing browser...")
+                self.context.storage_state(path=self.cookie_file)
+                print(f"Session saved to {self.cookie_file}")
+                self.browser.close()
 
     def load_session(self):
         """
@@ -74,7 +71,7 @@ class FacebookSessionManager:
             user_agent = (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/120.0.0.0 Safari/537.36"
+                "Chrome/124.0.0.0 Safari/537.36"
             )
             viewport = {"width": 1280, "height": 800}
             try:
@@ -89,9 +86,6 @@ class FacebookSessionManager:
                 self.page.goto("https://www.facebook.com/marketplace/you/")
                 print("Opened Facebook Marketplace with loaded session.")
                 
-                if "/login" in self.page.url:
-                    print("Session invalid or expired. Redirected to login.")
-                    raise Exception("Session expired")
                 
                 # Always return context and page, let caller manage browser
                 return self.context, self.page
