@@ -65,9 +65,10 @@ class FacebookSessionManager:
                     print("Browser closing...")
             self.browser.close()
 
-    def load_session(self, stay_open: bool = True) -> None:
+    def load_session(self):
         """
-        Loads session from file and opens Facebook Marketplace. Keeps browser open for inspection.
+        Loads session from file and opens Facebook Marketplace. 
+        Returns (context, page) for use in parser.
         """
         with sync_playwright() as p:
             user_agent = (
@@ -87,28 +88,25 @@ class FacebookSessionManager:
                 stealth_sync(self.page)
                 self.page.goto("https://www.facebook.com/marketplace/you/")
                 print("Opened Facebook Marketplace with loaded session.")
-                # Check if redirected to login (session expired)
+                
                 if "/login" in self.page.url:
                     print("Session invalid or expired. Redirected to login.")
                     raise Exception("Session expired")
-                if stay_open:
-                    print("Browser will stay open. Close it manually when done.")
-                    try:
-                        while True:
-                            time.sleep(1)
-                    except KeyboardInterrupt:
-                        print("Browser closing...")
-                self.browser.close()
+                
+                # Always return context and page, let caller manage browser
+                return self.context, self.page
+    
             except Exception as e:
                 print(f"Failed to load session: {e}")
                 print("You may need to re-login.")
+                return None, None
 
-if __name__ == "__main__":
-    # Example usage
-    EMAIL = "ibkinside@gmail.com"
-    PASSWORD = "justicemen"
-    fb = FacebookSessionManager(EMAIL, PASSWORD)
-    # To login and save session:
-    # fb.login(stay_open=True)
-    # To load session and open Marketplace:
-    fb.load_session(stay_open=True)
+# if __name__ == "__main__":
+#     # Example usage
+#     EMAIL = "ibkinside@gmail.com"
+#     PASSWORD = "justicemen"
+#     fb = FacebookSessionManager(EMAIL, PASSWORD)
+#     # To login and save session:
+#     # fb.login(stay_open=True)
+#     # To load session and open Marketplace:
+#     fb.load_session()
