@@ -105,6 +105,7 @@ class FacebookSessionManager:
 #     # Example usage
 #     EMAIL = "ibkinside@gmail.com"
 #     PASSWORD = "justicemen"
+
 #     fb = FacebookSessionManager(EMAIL, PASSWORD)
 #     # To login and save session:
 #     # fb.login(stay_open=True)

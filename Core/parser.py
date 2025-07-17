@@ -4,7 +4,8 @@ def main():
     EMAIL = "ibkinside@gmail.com"
     PASSWORD = "justicemen"
     fb = FacebookSessionManager(EMAIL, PASSWORD)
-    context, page = fb.load_session()
+    context, page = fb.load_session() 
+    
     if page:
         html = page.content()
         # Example: print the HTML or parse it with BeautifulSoup
