@@ -1,0 +1,36 @@
+# Web automation
+playwright==1.40.0
+playwright-stealth==1.0.6
+
+# Environment management
+python-dotenv==1.0.0
+
+
+## what the structure should look like
+pathfinder/
+├── .venv/                      # Virtual environment (keep)
+├── requirements.txt            # Dependencies
+├── .env                        # Environment variables (API keys, credentials)
+├── .gitignore                  # Git ignore file
+├── README.md                   # Project documentation
+├── main.py                     # Entry point/CLI interface
+├── config/
+│   └── settings.py            # Configuration management
+├── core/
+│   ├── __init__.py
+│   ├── session_manager.py     # Your FacebookSessionManager
+│   ├── parser.py              # Data parsing logic
+│   └── llm_client.py          # LLM interaction layer
+├── utils/
+│   ├── __init__.py
+│   ├── helpers.py             # Utility functions
+│   └── logging.py             # Logging setup
+├── data/
+│   ├── raw/                   # Raw scraped data. eventually to be saved on disk
+│   ├── processed/             # Parsed/cleaned data. eventually to be saved on disk
+│   └── auth.json              # Session storage
+└── tests/
+    ├── __init__.py
+    ├── test_session.py
+    ├── test_parser.py
+    └── test_llm.py
